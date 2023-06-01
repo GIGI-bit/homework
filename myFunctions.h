@@ -173,6 +173,20 @@ void MyString::capitalize()  {//needs update!
 }
 
 
+	MyString text("Jake Robert");
+	/*cout << text.print() << endl;
+	cout << text.front() << endl;
+	cout << text.back() << endl;
+	cout << text.at(3) << endl;*/
+
+	/*text.lower();
+	cout << text.print() << endl;
+
+	text.upper();
+	cout << text.print() << endl;*/
+
+	text.capitalize();
+	cout << text.print() << endl;
 
 
 
