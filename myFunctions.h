@@ -1,195 +1,204 @@
-#pragma once
-
-class MyString {
-	size_t _length = 0;
-	size_t _capacity = 16;
-	char* _text = nullptr;
-
-	void setText(const char* text);
+class Product
+{
+	int _id = 0;
+	char* _name = nullptr;
+	char* _description = nullptr;
+	double _price = 0;
+	short _discount = 0; // 0-100%
 public:
-	MyString() {
-		if (_text == nullptr)
-			_text = new char[_capacity];
-	}
-	MyString(const char* text);
-	MyString(const MyString& data);
-
-	char& front();
-	char& back();
-
-	char* print() const { return _text; }
-
-	char& at(size_t index);
-	bool empty() const;
-	int compare(const MyString right);
-	size_t size() const;
-	size_t find(char chr) const;
-	size_t rfind(char chr) const;
-	void clear();
-	void lower();
-	void upper();
-	void capitalize();
-
+	Product();
+	Product(const char* name, double price);
+	double getPrice();
+	double getDiscountPrice();
+	int getId();
+	void setId(int id);
+	void setPrice(double price);
+	void setDiscount(short discount);
+	void setDescription();
+	void print();
+	~Product();
 };
 
-void MyString::setText(const char* text) {
+// Note: Hər iki class-a aid qeydlər:
+// Constructors: Default, Parameterized
+// Accessors: Getter, Setter
+// Destructor
+// Delegation of constructors
+// Constructor Overlaodin
 
-	_length = strlen(text) + 1;
-	if (_length > _capacity)
-	{
-		while (_length > _capacity)
-			_capacity += 16;
-		_text = new char[_capacity];
-	}
 
-	for (size_t i = 0; i < _length; i++)
-		_text[i] = text[i];
-
-	_text[_length] = '\0';
+Product::Product() {
+	this->_id = 1;
+	_description = new char[] {"Default product"};
+	_price = 0;
+	
 }
 
 
-MyString::MyString(const char* text) :MyString()
+
+
+Product::Product(const char* name, double price) : Product()
 {
-	setText(text);
+	_name = new char[10];
+	strcpy_s(_name, sizeof(_name), name);
+	if (price < 0)
+		assert(!"PRICE CANNOT BE LOWER THAN 0!");
+
+	_price = price;
 }
 
+double Product::getPrice() { return this->_price; }
 
-MyString::MyString(const MyString& data)
-{
-	setText(data.print());
-	_capacity = data._capacity;
-	_length = data._length;
-}
-
-char& MyString::front() {
-	char index = this->_text[0];
-	return index;
-}
-
-
-
-char& MyString::back() {
-	int len = strlen(this->_text);
-	char index = this->_text[len - 1];
-	return index;
-}
-
-char& MyString::at(size_t index) {
-	if (this->_text == nullptr)
-		assert(!"THIS STRING IS EMPTY");
-	char* text = this->print();
-	int len = strlen(this->_text);
-	char found;
-	if (index > len)
-		assert(!"INDEX INVALID!");
-
-
-	found = text[index];
-	return found;
-
-}
-
-
-bool MyString::empty() const {
-	int len = strlen(this->_text);
-	if (len == 0)return false;
-	else return true;
-}
-
-size_t MyString::size() const {
-	int len = strlen(this->_text);
-	return len;
-}
-
-
-int MyString::compare(const MyString right) {
-	int lenLeft = strlen(this->_text);
-	int lenRight = strlen(right._text);
-	if (lenLeft == lenRight) return 0;
-	else if (lenLeft < lenRight)return -1;
-	else return 1;
-}
-
-
-size_t MyString::find(char chr) const {
-	for (size_t i = 0; i < this->_length; i++)
-	{
-		if (this->_text[i] == chr)return i;
-	}
+double Product::getDiscountPrice() {
+	if (_discount != 0)
+		return _price * _discount / 100;
 	return -1;
 }
 
+int Product::getId() { return _id; }
 
-size_t MyString::rfind(char chr) const {
-	for (size_t i = this->_length; i > 0; i--)
+void Product::setPrice(double price) {
+	if (price <= 0)
+		assert(!"INVALID DATA!");
+	_price = price;
+}
+
+void Product::setDiscount(short discount) {
+	if (_discount < 0)
+		assert(!"NUMBER YOU'VE ENTERES IS SO LOW");
+	_discount = discount;
+}
+
+void Product::print() {
+	cout << "\t\t~~~ PRODUCT INFO~~~" << endl;
+	cout << "Id: " << this->getId() << endl;
+	cout << "Name: " << this->_name << endl;
+	cout << "Price: " << this->_price << endl;
+	cout << "Discount: " << this->_discount << endl;
+	cout << "Discounted price: " << this->getDiscountPrice() << endl;
+	cout << "Description: " << this->_description << endl;
+}
+
+void Product::setDescription() {
+	char* newText = new char[30];
+	cout << "Name: " << this->_name << endl;
+	cout << "Write description of the product (max 30 symbols):" << endl;
+	cin.getline(newText, 30);
+}
+
+Product::~Product() {
+	if (_name != nullptr)
+		delete[] _name;
+	if (_description != nullptr)
+		delete[] _description;
+}
+
+void Product::setId(int id) {
+	if (id < 0)
+		assert(!"INVALID DATA!");
+	_id = id;
+}
+
+class Stock {
+	char* _name = nullptr;
+	Product** _products = nullptr;
+	size_t _count = 1;
+	void deleteProducts();
+public:
+	void print();
+	Product* getProductById(int id);
+	char* getName();
+	void setName(const char* name);
+	Stock();
+	Stock(const char* name);
+	void addToArray(Product* pr);
+	void deleteProductById(int id);
+};
+
+Stock::Stock() {
+	_name = new char[10];
+}
+
+Stock::Stock(const char* name) : Stock()
+{
+	if (strlen(name) > 10)
+		assert(!"NAME IS TOO LONG!");
+	strcpy_s(_name, sizeof(_name), name);
+}
+
+void Stock::deleteProducts() {
+	for (size_t i = 0; i < _count; i++)
+		delete[] _products[i];
+}
+
+char* Stock::getName() { return _name; }
+
+void Stock::setName(const char* name) {
+	if (strlen(name) > 10)
+		assert(!"NAME IS TOO LONG!");
+	strcpy_s(_name, sizeof(_name), name);
+}
+
+void Stock::addToArray(Product* pr) {
+
+	Product** newPr = new Product * [_count + 1];
+	for (size_t i = 0; i < _count; i++)
 	{
-		if (this->_text[i] == chr)return i;
+		newPr[i] = _products[i];
 	}
-	return -1;
+	newPr[_count] = pr;
+	deleteProducts();
+	_count++;
+	for (size_t i = 0; i < _count; i++)
+		_products[i] = newPr[i];
+
+}
+
+Product* Stock::getProductById(int id)
+{
+	for (size_t i = 0; i < this->_count; i++)
+		if (id == _products[i]->getId())return _products[i];
 }
 
 
-void MyString::clear() {
-	if (this->_text == nullptr)
-		assert(!"THIS STRING IS ALREADY CLEAR!");
-	delete this->_text;
-	this->_text = nullptr;
-}
+void Stock::deleteProductById(int id) {
+	Product** newPr = new Product * [_count - 1];
 
-void MyString::lower() {
-	if (_text == nullptr)
-		cout << "THIS STRING IS EMPTY!" << endl;
-
-	for (size_t i = 0; i < _length; i++)
+	for (size_t i = 0; i < this->_count; i++)
 	{
-		if (int(_text[i]) > 96 && int(_text[i]) < 123)
-			_text[i] = int(_text[i]) - 32;
+		if (_products[i] == getProductById(id)) {
+			delete _products[i];
+		}
+		else {
+			newPr[i] = _products[i];
+		}
 	}
-
-}
-
-void MyString::upper() {
-	if (_text == nullptr)
-		cout << "THIS STRING IS EMPTY!" << endl;
-
-	for (size_t i = 0; i < _length; i++)
-	{
-		if (int(_text[i]) > 64 && int(_text[i]) < 91)
-			_text[i] = int(_text[i]) + 32;
-	}
-
-}
-
-void MyString::capitalize()  {//needs update!
-	if (_text == nullptr)
-		cout << "THIS STRING IS EMPTY!" << endl;
-
-	for (size_t i = 0; i < _length; i++)
-	{
-		if (i == 0 && (int(_text[i]) > 64 && int(_text[i]) < 91))
-			_text[i] = int(_text[i]) + 32;
-	}
+	deleteProducts();
+	_count--;
+	for (size_t i = 0; i < _count; i++)
+		_products[i] = newPr[i];
 }
 
 
-	MyString text("Jake Robert");
-	/*cout << text.print() << endl;
-	cout << text.front() << endl;
-	cout << text.back() << endl;
-	cout << text.at(3) << endl;*/
+void Stock::print() {
+	cout << "\t\t ~~ STOCK INFO ~~ " << endl;
+	for (size_t i = 0; i < this->_count; i++)
+		_products[i]->print();
+}
 
-	/*text.lower();
-	cout << text.print() << endl;
+Product apple;
+Product k("Kiwi", 3.7);
 
-	text.upper();
-	cout << text.print() << endl;*/
+k.setDiscount(20);
 
-	text.capitalize();
-	cout << text.print() << endl;
+cout << k.getId() << endl;
+cout << k.getPrice() << endl;
+cout << k.getDiscountPrice() << endl;
 
+k.print();
 
-
-
-
+Stock d("gugu");
+d.addToArray(&k);
+d.addToArray(&apple);
+d.print();
 
